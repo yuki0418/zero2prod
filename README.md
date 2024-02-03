@@ -58,6 +58,17 @@ cargo audit
 ```
 It will scan dependency tree for security vulnerabilities
 
+### Remove Unused Dependencies
+Install cargo-udeps
+```
+cargo install cargo-udeps
+```
+Run cargo-udeps
+```
+cargo +nightly udeps
+```
+
+
 ## Run App
 ```
 cargo watch -x check -x test -x run
