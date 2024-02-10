@@ -73,3 +73,9 @@ cargo +nightly udeps
 ```
 cargo watch -x check -x test -x run
 ```
+
+## Testing
+Run test without the logs
+```
+RUST_LOG=error cargo test
+```
