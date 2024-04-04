@@ -57,6 +57,7 @@ validator = "0.16"
 thiserror = "1"
 anyhow = "1"
 base64 = "0.22"
+sha3 = "0.10.8"
 
 [dependencies.sqlx]
 version = "0.7"
