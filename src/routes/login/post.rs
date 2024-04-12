@@ -1,11 +1,11 @@
+use crate::startup::HmacSecret;
 use actix_web::error::InternalError;
-use actix_web::{http::header::ContentType, web, HttpResponse, ResponseError};
+use actix_web::{web, HttpResponse, ResponseError};
 use hmac::{Hmac, Mac};
 use reqwest::{header::LOCATION, StatusCode};
 use secrecy::ExposeSecret;
 use secrecy::Secret;
 use sqlx::PgPool;
-use crate::startup::HmacSecret;
 
 use crate::{
     authentication::{validate_credentials, AuthError, Credentials},
@@ -91,10 +91,7 @@ pub async fn login(
                 mac.finalize().into_bytes()
             };
             let response = HttpResponse::SeeOther()
-                .insert_header((
-                    LOCATION,
-                    format!("/login?{}&tag={:x}", query_string, hmac_tag),
-                ))
+                .insert_header((LOCATION, "/login"))
                 .finish();
             Err(InternalError::from_response(e, response))
         }
