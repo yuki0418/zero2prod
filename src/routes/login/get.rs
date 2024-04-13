@@ -1,4 +1,8 @@
-use actix_web::{http::header::ContentType, web, HttpResponse};
+use actix_web::{
+    cookie::{time::Duration, Cookie},
+    http::header::ContentType,
+    web, HttpRequest, HttpResponse,
+};
 use hmac::{Hmac, Mac};
 use secrecy::ExposeSecret;
 
@@ -24,27 +28,14 @@ impl QueryParams {
     }
 }
 
-pub async fn login_form(
-    query: Option<web::Query<QueryParams>>,
-    secret: web::Data<HmacSecret>,
-) -> HttpResponse {
-    let error_html = match query {
+pub async fn login_form(request: HttpRequest) -> HttpResponse {
+    let error_html = match request.cookie("_flash") {
         None => "".into(),
-        Some(query) => match query.0.verify(&secret) {
-            Ok(error) => {
-                format!("<p><i>{}</i></p>", htmlescape::encode_minimal(&error))
-            }
-            Err(e) => {
-                tracing::warn!(
-                    error.message = %e,
-                    error.cause_chain = ?e,
-                    "Failed to verify query parameters using the HMAC tag"
-                );
-                "".into()
-            }
-        },
+        Some(cookie) => {
+            format!("<p><i>{}</i></p>", cookie.value())
+        }
     };
-    HttpResponse::Ok()
+    let mut response = HttpResponse::Ok()
         .content_type(ContentType::html())
         // .body(include_str!("login.html"))
         .body(format!(
@@ -73,5 +64,11 @@ pub async fn login_form(
             </body>
             </html>
             "#
-        ))
+        ));
+
+    response
+        .add_removal_cookie(&Cookie::new("_flash", ""))
+        .unwrap();
+
+    response
 }
